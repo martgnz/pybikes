@@ -8,15 +8,9 @@ from pybikes.contrib import TSTCache
 
 FEED_URL = 'https://apis.deutschebahn.com/db-api-marketplace/apis/shared-mobility-gbfs/2-2/de/{provider}/gbfs'
 
-# caches the feed for 60s
-cache = TSTCache(delta=60)
-
 
 class DB(Gbfs):
     authed = True
-
-    # All networks within use the same data feed
-    unifeed = True
 
     meta = {
         'company': ['Deutsche Bahn AG'],
@@ -56,6 +50,12 @@ class Callabike(DB):
 
     provider = 'CallABike'
 
+    # caches the feed for 60s
+    cache = TSTCache(delta=60)
 
     def __init__(self, * args, ** kwargs):
         super(Callabike, self).__init__(* args, ** kwargs, provider=Callabike.provider)
+
+    def update(self, scraper=None):
+        scraper = scraper or PyBikesScraper(self.cache)
+        super(Callabike, self).update(scraper)
